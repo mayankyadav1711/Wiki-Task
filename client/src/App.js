@@ -1,6 +1,5 @@
 import React, { useState } from "react";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import toast, { Toaster } from 'react-hot-toast';
 import "./App.css";
 
 function App() {
@@ -50,6 +49,12 @@ function App() {
     }
   };
 
+  // Function to handle clearing the input box and result
+  const handleClear = () => {
+    setUrl("");
+    setResult(null);
+  };
+
   return (
     <div style={{ fontFamily: "Arial, sans-serif", textAlign: "center" }}>
       <h1 style={{ fontSize: "3.5rem", marginBottom: "1rem" }}>
@@ -72,7 +77,8 @@ function App() {
           required
           onChange={(e) => setUrl(e.target.value)}
           style={{
-            width: "30rem",
+            width: "100%",
+            maxWidth: "30rem",
             margin: "0 auto",
             display: "block",
             marginTop: "1rem",
@@ -96,9 +102,26 @@ function App() {
           border: "none",
           borderRadius: "5px",
           cursor: "pointer",
+          marginRight: "0.5rem"
         }}
       >
         {result ? "Restart " : "Start "}
+      </button>
+
+      {/* Clear Button */}
+      <button
+        onClick={handleClear}
+        style={{
+          padding: "0.5rem 1rem",
+          fontSize: "1rem",
+          backgroundColor: "#f44336",
+          color: "white",
+          border: "none",
+          borderRadius: "5px",
+          cursor: "pointer",
+        }}
+      >
+        Clear
       </button>
 
       {/* Loading Spinner */}
@@ -150,6 +173,18 @@ function App() {
                 >
                   {result.steps}
                 </span>
+                <br />
+                {/* Execution time */}
+                Execution time:{" "}
+                <span
+                  style={{
+                    fontSize: "1.2rem",
+                    fontWeight: "bold",
+                    color: "#3498db",
+                  }}
+                >
+                  {(result.timeTaken / 1000).toFixed(2)} seconds
+                </span>
               </p>
 
               {/* List of Visited Pages */}
@@ -175,7 +210,14 @@ function App() {
                         padding: "0.5rem",
                         borderBottom: "1px solid #ddd",
                         cursor: "pointer",
+                        backgroundColor: "transparent",
                       }}
+                      onMouseEnter={(e) =>
+                        e.target.style.backgroundColor = "#f0f0f0"
+                      }
+                      onMouseLeave={(e) =>
+                        e.target.style.backgroundColor = "transparent"
+                      }
                     >
                       {page}
                     </li>
@@ -188,7 +230,30 @@ function App() {
       )}
 
       {/* Toast Container for Notifications */}
-      <ToastContainer autoClose={3000} />
+      <Toaster
+        position="top-center"
+        reverseOrder={false}
+        gutter={8}
+        containerClassName=""
+        containerStyle={{ zIndex: '9999999999' }} // Ensure the container has a high z-index
+        toastOptions={{
+          className: '',
+          duration: 5000,
+          style: {
+            background: 'white',
+            color: 'black',
+            fontSize: '16px',
+          },
+          success: {
+            duration: 3000,
+           
+          },
+        }}
+      />
+
+<div style={{ position: "fixed", bottom: "10px", width: "100%", textAlign: "center", color: "#777" }}>
+        Made by <a href="https://github.com/mayankyadav1711" target="_blank" rel="noreferrer" style={{textDecoration:"none"}}>Mayank Yadav</a>
+      </div>
     </div>
   );
 }
