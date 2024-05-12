@@ -70,7 +70,7 @@ const getFirstValidLink = async (url) => {
 
 
 
-// Function to follow Wikipedia loop starting from a given URL
+
 // Function to follow Wikipedia loop starting from a given URL
 const followWikipediaLoop = async (startUrl) => {
   const startTime = performance.now(); // Measure start time

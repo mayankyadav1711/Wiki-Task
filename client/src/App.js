@@ -21,7 +21,7 @@ function App() {
       setResult(null);
 
       // Fetch data from the backend API
-      const response = await fetch("/api/wikipedia", {
+      const response = await fetch("https://wikiloop-backend.vercel.app/api/wikipedia", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
