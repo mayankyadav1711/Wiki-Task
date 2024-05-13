@@ -11,6 +11,7 @@ function App() {
   // Function to handle form submission
   const handleSubmit = async () => {
     try {
+      //handling both types of urls
       let formattedUrl;
       if (url.startsWith("https://en.m.wikipedia.org")) {
         formattedUrl = url.slice(26);
