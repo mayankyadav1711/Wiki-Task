@@ -30,7 +30,7 @@ The Wikipedia Loop project is a web application designed to explore the phenomen
 
 3. Run Server
      ```bash
-   node app.js
+   node index.js
 
 ## Client
 
