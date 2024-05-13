@@ -137,7 +137,7 @@ const followWikipediaLoop = async (startUrl) => {
 // API endpoint to start the Wikipedia loop
 app.post("/api/wikipedia", async (req, res) => {
   try {
- 
+    const { url } = req.body;
     console.log("url received" + url);
     const result = await followWikipediaLoop(url);
 
