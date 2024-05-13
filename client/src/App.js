@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import toast, { Toaster } from 'react-hot-toast';
+import toast, { Toaster } from "react-hot-toast";
 import "./App.css";
 
 function App() {
@@ -11,17 +11,21 @@ function App() {
   // Function to handle form submission
   const handleSubmit = async () => {
     try {
-      // Format URL to handle variations
-      const formattedUrl = url.startsWith("https://en.wikipedia.org")
-        ? url.slice(24)
-        : url;
+      let formattedUrl;
+      if (url.startsWith("https://en.m.wikipedia.org")) {
+        formattedUrl = url.slice(26);
+      } else if (url.startsWith("https://en.wikipedia.org")) {
+        formattedUrl = url.slice(24);
+      } else {
+        formattedUrl = url;
+      }
 
       // Set loading state and clear previous result
       setLoading(true);
       setResult(null);
 
       // Fetch data from the backend API
-      const response = await fetch("https://wikiloop-backend.vercel.app/api/wikipedia", {
+      const response = await fetch("http://localhost:5000/api/wikipedia", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -102,7 +106,7 @@ function App() {
           border: "none",
           borderRadius: "5px",
           cursor: "pointer",
-          marginRight: "0.5rem"
+          marginRight: "0.5rem",
         }}
       >
         {result ? "Restart " : "Start "}
@@ -151,9 +155,7 @@ function App() {
           }}
         >
           <h2 style={{ fontSize: "1.5rem", marginBottom: "1rem" }}>
-            {result.infiniteLoop
-              ? "Infinite Loop Detected!"
-              : "Result"}
+            {result.infiniteLoop ? "Infinite Loop Detected!" : "Result"}
           </h2>
           {result.infiniteLoop ? (
             <p style={{ fontSize: "1.5rem", marginBottom: "1rem" }}>
@@ -201,10 +203,7 @@ function App() {
                     <li
                       key={index}
                       onClick={() =>
-                        window.open(
-                          `https://en.wikipedia.org${page}`,
-                          "_blank"
-                        )
+                        window.open(`https://en.wikipedia.org${page}`, "_blank")
                       }
                       style={{
                         padding: "0.5rem",
@@ -213,10 +212,10 @@ function App() {
                         backgroundColor: "transparent",
                       }}
                       onMouseEnter={(e) =>
-                        e.target.style.backgroundColor = "#f0f0f0"
+                        (e.target.style.backgroundColor = "#f0f0f0")
                       }
                       onMouseLeave={(e) =>
-                        e.target.style.backgroundColor = "transparent"
+                        (e.target.style.backgroundColor = "transparent")
                       }
                     >
                       {page}
@@ -235,24 +234,39 @@ function App() {
         reverseOrder={false}
         gutter={8}
         containerClassName=""
-        containerStyle={{ zIndex: '9999999999' }} // Ensure the container has a high z-index
+        containerStyle={{ zIndex: "9999999999" }} // Ensure the container has a high z-index
         toastOptions={{
-          className: '',
+          className: "",
           duration: 5000,
           style: {
-            background: 'white',
-            color: 'black',
-            fontSize: '16px',
+            background: "white",
+            color: "black",
+            fontSize: "16px",
           },
           success: {
             duration: 3000,
-           
           },
         }}
       />
 
-<div style={{ position: "fixed", bottom: "10px", width: "100%", textAlign: "center", color: "#777" }}>
-        Made by <a href="https://github.com/mayankyadav1711" target="_blank" rel="noreferrer" style={{textDecoration:"none"}}>Mayank Yadav</a>
+      <div
+        style={{
+          position: "fixed",
+          bottom: "10px",
+          width: "100%",
+          textAlign: "center",
+          color: "#777",
+        }}
+      >
+        Made by{" "}
+        <a
+          href="https://github.com/mayankyadav1711"
+          target="_blank"
+          rel="noreferrer"
+          style={{ textDecoration: "none" }}
+        >
+          Mayank Yadav
+        </a>
       </div>
     </div>
   );

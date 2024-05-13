@@ -1,21 +1,20 @@
 // Import required modules
-const express = require('express');
-const axios = require('axios');
-const cheerio = require('cheerio');
+const express = require("express");
+const axios = require("axios");
+const cheerio = require("cheerio");
 const cors = require("cors");
 
 // Create an Express application
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-app.use(cors({
-  origin: [
-    "https://wikiloop.vercel.app",
-    "http://localhost:3000",
-  ],
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  credentials: true
-}));
+app.use(
+  cors({
+    origin: ["https://wikiloop.vercel.app", "http://localhost:3000"],
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true,
+  })
+);
 
 // Enable JSON parsing for incoming requests
 app.use(express.json());
@@ -32,18 +31,28 @@ const axiosInstance = axios.create({
   // Add your common configurations here, like headers
 });
 
-// Function to get the first valid link from a given URL
 const getFirstValidLink = async (url) => {
   try {
+    // Check if the URL is a mobile Wikipedia URL and format accordingly
+    if (url.startsWith("https://en.m.wikipedia.org")) {
+      // Remove the common part of the URL to get the page-specific part
+      url = url.slice(29);
+    } else if (url.startsWith("https://en.wikipedia.org")) {
+      // Remove the common part of the URL to get the page-specific part
+      url = url.slice(24);
+    }
+
     // Fetch HTML content from the URL
-    const response = await axiosInstance.get(url);
+    const response = await axiosInstance.get(`https://en.wikipedia.org${url}`);
 
     const $ = cheerio.load(response.data);
-    const mainContent = $('#mw-content-text');
+    const mainContent = $("#mw-content-text");
 
     // Find the first non-parenthesized, non-italicized link in the main content (normal ones only)
     const firstLink = mainContent
-      .find('p > a:not(:has(span[style="font-style:italic"]), span[style="font-style:italic"])')
+      .find(
+        'p > a:not(:has(span[style="font-style:italic"]), span[style="font-style:italic"])'
+      )
       .first();
 
     // If no valid link found, return null
@@ -52,24 +61,21 @@ const getFirstValidLink = async (url) => {
     }
 
     // Extract the href attribute of the link
-    const href = firstLink.attr('href');
-    
+    const href = firstLink.attr("href");
+
     // Cache the result for future use
     cache.set(url, href);
 
     return href;
   } catch (error) {
     // Handle errors, e.g., if the link is not valid or the page structure changes
-    if (error.code === 'ENOTFOUND') {
-      throw new Error('Invalid URL. Please enter a valid Wikipedia URL.');
+    if (error.code === "ENOTFOUND") {
+      throw new Error("Invalid URL. Please enter a valid Wikipedia URL.");
     } else {
       throw error;
     }
   }
 };
-
-
-
 
 // Function to follow Wikipedia loop starting from a given URL
 const followWikipediaLoop = async (startUrl) => {
@@ -81,7 +87,9 @@ const followWikipediaLoop = async (startUrl) => {
   while (true) {
     try {
       // Get the first valid link from the current URL
-      const firstLink = await getFirstValidLink(`https://en.wikipedia.org${currentUrl}`);
+      const firstLink = await getFirstValidLink(
+        `https://en.wikipedia.org${currentUrl}`
+      );
 
       // If no valid link found, break the loop
       if (!firstLink) {
@@ -97,18 +105,20 @@ const followWikipediaLoop = async (startUrl) => {
       visitedPages.push(currentUrl);
 
       // Fetch content of the next page
-      const nextPage = await axiosInstance.get(`https://en.wikipedia.org${firstLink}`);
+      const nextPage = await axiosInstance.get(
+        `https://en.wikipedia.org${firstLink}`
+      );
       currentUrl = firstLink;
 
       // Check if we reached the "Philosophy" page
-      if (nextPage.data.includes('<title>Philosophy')) {
-        visitedPages.push('/wiki/Philosophy');
+      if (nextPage.data.includes("<title>Philosophy")) {
+        visitedPages.push("/wiki/Philosophy");
         break;
       }
     } catch (error) {
       // Handle errors, e.g., if the link is not valid or the page structure changes
       if (error.response && error.response.status === 404) {
-        throw new Error('Page not found. Please enter a valid Wikipedia URL.');
+        throw new Error("Page not found. Please enter a valid Wikipedia URL.");
       } else {
         throw error;
       }
@@ -116,15 +126,19 @@ const followWikipediaLoop = async (startUrl) => {
   }
 
   // Return the result including visited pages, steps, and infinite loop flag
-  return { visitedPages, steps: visitedPages.length - 1, infiniteLoop: false, timeTaken: performance.now() - startTime }; // Measure end time
+  return {
+    visitedPages,
+    steps: visitedPages.length - 1,
+    infiniteLoop: false,
+    timeTaken: performance.now() - startTime,
+  }; // Measure end time
 };
 
-
-
 // API endpoint to start the Wikipedia loop
-app.post('/api/wikipedia', async (req, res) => {
+app.post("/api/wikipedia", async (req, res) => {
   try {
-    const { url } = req.body;
+ 
+    console.log("url received" + url);
     const result = await followWikipediaLoop(url);
 
     // Send the result, including the infiniteLoop flag, to the frontend
@@ -141,7 +155,7 @@ app.post('/api/wikipedia', async (req, res) => {
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  res.status(500).send('Something broke!');
+  res.status(500).send("Something broke!");
 });
 
 // Start the server and listen on the specified port
